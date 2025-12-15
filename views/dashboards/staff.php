@@ -213,18 +213,18 @@ $conn->close();
         
         <!-- System Management -->
         <div class="dashboard-grid">
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <i class="fas fa-cog"></i>
-                    <h3>System Settings</h3>
-                </div>
-                <div class="card-content">
-                    <p>Configure library system settings</p>
-                </div>
-                <div class="card-actions">
-                    <a href="#" class="action-btn">Manage Settings</a>
-                </div>
-            </div>
+        <div class="dashboard-card">
+    <div class="card-header">
+        <i class="fas fa-cog"></i>
+        <h3>System Settings</h3>
+    </div>
+    <div class="card-content">
+        <p>Configure library system settings</p>
+    </div>
+    <div class="card-actions">
+        <a href="settings.php" class="action-btn">Manage Settings</a>
+    </div>
+</div>
             
             <!-- In the System Management section -->
         <div class="dashboard-card">

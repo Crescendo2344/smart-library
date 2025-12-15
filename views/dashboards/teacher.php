@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/auth.php';
+require_once '../../includes/config.php';
+require_once '../../includes/auth.php';
 
 // Get user info
 $user_id = $_SESSION['user_id'];

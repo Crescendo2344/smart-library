@@ -2,7 +2,7 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-session_start();
+
 
 // Only staff can access this page
 if ($_SESSION['role'] !== 'staff') {
