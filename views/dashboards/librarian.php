@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/auth.php';
+require_once '../../includes/config.php';
+require_once '../../includes/config.php';
 
 // Only librarians can access this page
 if ($_SESSION['role'] !== 'librarian') {
@@ -49,7 +49,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Dashboard - Library Management System</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="/smart-library/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -297,7 +297,7 @@ $conn->close();
         </div>
     </footer>
     
-    <script src="../js/scripts.js"></script>
+    <script src="/smart-library/assets/js/scripts.js"></script>
     <script>
     document.getElementById('add-book-form').addEventListener('submit', function(e) {
         e.preventDefault();

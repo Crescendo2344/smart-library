@@ -40,9 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_role = $_SESSION['role'];
     $borrowing_limits = [
         'student' => 3,
-        'teacher' => 10,
-        'librarian' => 15,
-        'staff' => 20
+        'teacher' => 999,
+        'librarian' => 0,
+        'staff' => 0
     ];
     $user_limit = $borrowing_limits[$user_role] ?? 5;
     

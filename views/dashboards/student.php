@@ -68,6 +68,20 @@ $stmt4->bind_param("i", $user_id);
 $stmt4->execute();
 $borrowing_history = $stmt4->get_result();
 
+$reservations_query = "SELECT r.*, b.title, b.author, b.isbn, 
+                      (SELECT COUNT(*) FROM reservations r2 
+                       WHERE r2.book_id = r.book_id 
+                       AND r2.status = 'active' 
+                       AND r2.reservation_date < r.reservation_date) as queue_position
+                      FROM reservations r 
+                      JOIN books b ON r.book_id = b.id 
+                      WHERE r.user_id = ? AND r.status = 'active'
+                      ORDER BY r.reservation_date ASC";
+$reservations_stmt = $conn->prepare($reservations_query);
+$reservations_stmt->bind_param("i", $user_id);
+$reservations_stmt->execute();
+$reservations = $reservations_stmt->get_result();
+
 $conn->close();
 
 // Fine calculation function
@@ -86,6 +100,7 @@ function calculateFine($days_overdue) {
     
     return min($fine, $max_fine_per_book);
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -158,6 +173,20 @@ function calculateFine($days_overdue) {
                     <a href="#fines-section" class="action-btn">Pay Now</a>
                 </div>
             </div>
+
+            <div class="dashboard-card">
+    <div class="card-header">
+        <i class="fas fa-bookmark"></i>
+        <h3>Active Reservations</h3>
+    </div>
+    <div class="card-content">
+        <div class="stat-number"><?php echo $reservations->num_rows; ?></div>
+        <div class="stat-label">Books Reserved</div>
+    </div>
+    <div class="card-actions">
+        <a href="#reservations" class="action-btn">View All</a>
+    </div>
+</div>
             
             <div class="dashboard-card">
                 <div class="card-header">
@@ -439,6 +468,10 @@ function calculateFine($days_overdue) {
                                 <button class="btn-small btn-approve" onclick="borrowBook(<?php echo $book['id']; ?>)">
                                     <i class="fas fa-book"></i> Borrow
                                 </button>
+
+                                <button class="btn-small btn-reserve" onclick="reserveBook(<?php echo $book['id']; ?>, '<?php echo addslashes($book['title']); ?>')">
+                                     <i class="fas fa-bookmark"></i> Reserve
+                                </button>
                                 <button class="btn-small btn-view" onclick="viewBookDetails(<?php echo $book['id']; ?>)">
                                     <i class="fas fa-info-circle"></i> Details
                                 </button>
@@ -459,6 +492,81 @@ function calculateFine($days_overdue) {
             <?php endif; ?>
         </div>
         
+        <!-- My Reservations -->
+<div class="table-container" id="reservations">
+    <h2><i class="fas fa-bookmark"></i> My Reservations</h2>
+    <?php if ($reservations->num_rows > 0): ?>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Reservation Date</th>
+                <th>Expiry Date</th>
+                <th>Queue Position</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while($reservation = $reservations->fetch_assoc()): 
+                $expiry_date = new DateTime($reservation['expiry_date']);
+                $today = new DateTime();
+                $days_left = $today->diff($expiry_date)->days;
+                $is_expiring_soon = $days_left <= 2;
+            ?>
+            <tr>
+                <td><?php echo htmlspecialchars($reservation['title']); ?></td>
+                <td><?php echo htmlspecialchars($reservation['author']); ?></td>
+                <td><?php echo date('M d, Y', strtotime($reservation['reservation_date'])); ?></td>
+                <td>
+                    <span class="<?php echo $is_expiring_soon ? 'text-danger' : ''; ?>">
+                        <?php echo date('M d, Y', strtotime($reservation['expiry_date'])); ?>
+                        <?php if ($is_expiring_soon): ?>
+                        <br><small class="text-danger">(<?php echo $days_left; ?> days left)</small>
+                        <?php endif; ?>
+                    </span>
+                </td>
+                <td>
+                    <?php if ($reservation['queue_position'] == 0): ?>
+                        <span class="badge success">Next in line</span>
+                    <?php else: ?>
+                        <span class="badge info">#<?php echo $reservation['queue_position'] + 1; ?> in queue</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <span class="status-badge status-pending">
+                        Active
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-small btn-danger" onclick="cancelReservation(<?php echo $reservation['id']; ?>, '<?php echo addslashes($reservation['title']); ?>')">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <?php if ($reservation['queue_position'] == 0): ?>
+                        <button class="btn-small btn-success" onclick="checkAvailability(<?php echo $reservation['book_id']; ?>, <?php echo $reservation['id']; ?>)">
+                            <i class="fas fa-bell"></i> Notify Me
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+    <?php else: ?>
+    <div class="info-message">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>You have no active reservations.</strong>
+            <p>Reserve books that are currently unavailable to get notified when they become available.</p>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+
         <!-- Borrowing History -->
         <div class="table-container" id="history">
             <h2><i class="fas fa-history"></i> Recent Borrowing History</h2>
@@ -642,6 +750,113 @@ function returnBook(recordId, bookTitle) {
         alert('❌ An error occurred. Please try again.');
         returnBtn.innerHTML = originalText;
         returnBtn.disabled = false;
+    });
+}
+// Reserve book function
+function reserveBook(bookId, bookTitle) {
+    if (!confirm('Reserve "' + bookTitle + '"?\n\nYou will be notified when it becomes available.')) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    
+    // Show loading state
+    const reserveBtn = event.target;
+    const originalText = reserveBtn.innerHTML;
+    reserveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reserving...';
+    reserveBtn.disabled = true;
+    
+    fetch('../../includes/reserve_book.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert('✅ Book reserved successfully!\n\n📚 Book: ' + bookTitle + 
+                  '\n📅 Reservation expires: ' + data.expiry_date + 
+                  '\n📊 Your position in queue: ' + data.queue_position);
+            // Refresh the page after a short delay
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            if (data.available) {
+                // Book is available, ask if they want to borrow instead
+                if (confirm('This book is currently available!\n\nWould you like to borrow it instead?')) {
+                    borrowBook(bookId);
+                }
+            } else {
+                alert('❌ Error: ' + data.message);
+            }
+            reserveBtn.innerHTML = originalText;
+            reserveBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ An error occurred. Please try again.');
+        reserveBtn.innerHTML = originalText;
+        reserveBtn.disabled = false;
+    });
+}
+
+// Cancel reservation function
+function cancelReservation(reservationId, bookTitle) {
+    if (!confirm('Cancel reservation for "' + bookTitle + '"?')) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('reservation_id', reservationId);
+    
+    fetch('../../includes/cancel_reservation.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Reservation cancelled successfully!');
+            location.reload();
+        } else {
+            alert('❌ Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ An error occurred. Please try again.');
+    });
+}
+
+// Check availability function
+function checkAvailability(bookId, reservationId) {
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    
+    fetch('../../includes/check_availability.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.available) {
+            if (confirm('Book is now available!\n\nWould you like to borrow it?')) {
+                borrowBook(bookId);
+            }
+        } else {
+            alert('Book is still unavailable. We will notify you when it becomes available.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ An error occurred. Please try again.');
     });
 }
 
