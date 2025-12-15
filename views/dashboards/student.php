@@ -2,11 +2,11 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-// Get user info
+
 $user_id = $_SESSION['user_id'];
 $conn = getDBConnection();
 
-// Get student's borrowed books
+
 $borrowed_query = "SELECT b.*, br.id as record_id, br.borrow_date, br.due_date, br.status 
                    FROM borrowing_records br 
                    JOIN books b ON br.book_id = b.id 
@@ -17,7 +17,7 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $borrowed_books = $stmt->get_result();
 
-// Get overdue books with fine calculation
+
 $overdue_query = "SELECT 
                     b.*, 
                     br.id as record_id, 
@@ -39,7 +39,7 @@ $stmt2->bind_param("i", $user_id);
 $stmt2->execute();
 $overdue_books = $stmt2->get_result();
 
-// Get total fines
+
 $fines_query = "SELECT 
                     SUM(CASE WHEN f.paid = FALSE THEN f.amount ELSE 0 END) as total_unpaid,
                     SUM(CASE WHEN f.paid = TRUE THEN f.amount ELSE 0 END) as total_paid,
@@ -53,11 +53,11 @@ $stmt3->execute();
 $fines_result = $stmt3->get_result();
 $fines_data = $fines_result->fetch_assoc();
 
-// Get available books
-$available_books_query = "SELECT * FROM books WHERE copies_available > 0 ORDER BY title LIMIT 10";
+
+$available_books_query = "SELECT * FROM books WHERE copies_available >= 0 ORDER BY title LIMIT 10";
 $available_books = $conn->query($available_books_query);
 
-// Get borrowing history
+
 $history_query = "SELECT b.title, b.author, br.borrow_date, br.return_date 
                   FROM borrowing_records br 
                   JOIN books b ON br.book_id = b.id 
@@ -84,9 +84,9 @@ $reservations = $reservations_stmt->get_result();
 
 $conn->close();
 
-// Fine calculation function
+
 function calculateFine($days_overdue) {
-    // $0.50 per day after 2-day grace period
+   
     $grace_period = 2;
     $daily_rate = 0.50;
     $max_fine_per_book = 25.00;
@@ -109,6 +109,7 @@ function calculateFine($days_overdue) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - Library Management System</title>
     <link rel="stylesheet" href="/smart-library/assets/css/styles.css">
+    <link rel="stylesheet" href="/smart-library/assets/css/student.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -203,7 +204,7 @@ function calculateFine($days_overdue) {
             </div>
         </div>
         
-        <!-- Overdue Books with Fines -->
+      
         <div class="table-container" id="overdue-books">
             <h2><i class="fas fa-exclamation-triangle"></i> Overdue Books & Fines</h2>
             
@@ -240,7 +241,7 @@ function calculateFine($days_overdue) {
                             $days_overdue = $days_overdue * ($today > $due_date ? 1 : -1);
                         }
                         
-                        // Calculate fine if not already in database
+                        
                         if ($book['fine_amount'] === null) {
                             $fine_amount = calculateFine($days_overdue);
                         } else {
@@ -305,7 +306,7 @@ function calculateFine($days_overdue) {
                 </tfoot>
             </table>
             
-            <!-- Payment Options -->
+            
             <div class="payment-options">
                 <h3><i class="fas fa-credit-card"></i> Payment Options</h3>
                 <div class="options-grid">
@@ -361,7 +362,7 @@ function calculateFine($days_overdue) {
             <?php endif; ?>
         </div>
         
-        <!-- Currently Borrowed Books -->
+       
         <div class="table-container" id="borrowed-books">
             <h2><i class="fas fa-bookmark"></i> Currently Borrowed Books</h2>
             <?php if ($borrowed_books->num_rows > 0): ?>
@@ -379,7 +380,7 @@ function calculateFine($days_overdue) {
                 </thead>
                 <tbody>
                     <?php 
-                    // Reset pointer for borrowed books
+                    
                     $borrowed_books->data_seek(0);
                     while($book = $borrowed_books->fetch_assoc()): 
                         $due_date = new DateTime($book['due_date']);
@@ -430,7 +431,7 @@ function calculateFine($days_overdue) {
             <?php endif; ?>
         </div>
         
-        <!-- Available Books -->
+        
         <div class="table-container" id="available-books">
             <h2><i class="fas fa-book"></i> Available Books</h2>
             <?php if ($available_books->num_rows > 0): ?>
@@ -472,9 +473,10 @@ function calculateFine($days_overdue) {
                                 <button class="btn-small btn-reserve" onclick="reserveBook(<?php echo $book['id']; ?>, '<?php echo addslashes($book['title']); ?>')">
                                      <i class="fas fa-bookmark"></i> Reserve
                                 </button>
-                                <button class="btn-small btn-view" onclick="viewBookDetails(<?php echo $book['id']; ?>)">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </button>
+                                <button class="btn-small btn-view" 
+                                                                    onclick="viewBookDetails(<?php echo $book['id']; ?>)">
+                                 <i class="fas fa-info-circle"></i> Details
+                                        </button>
                             </div>
                         </td>
                     </tr>
@@ -492,7 +494,7 @@ function calculateFine($days_overdue) {
             <?php endif; ?>
         </div>
         
-        <!-- My Reservations -->
+        
 <div class="table-container" id="reservations">
     <h2><i class="fas fa-bookmark"></i> My Reservations</h2>
     <?php if ($reservations->num_rows > 0): ?>
@@ -567,7 +569,7 @@ function calculateFine($days_overdue) {
 </div>
 
 
-        <!-- Borrowing History -->
+       
         <div class="table-container" id="history">
             <h2><i class="fas fa-history"></i> Recent Borrowing History</h2>
             <?php if ($borrowing_history->num_rows > 0): ?>
@@ -626,7 +628,7 @@ function calculateFine($days_overdue) {
             <?php endif; ?>
         </div>
         
-        <!-- Fines Summary Section -->
+        
         <div class="table-container" id="fines-section">
             <h2><i class="fas fa-money-bill-wave"></i> Fines Summary</h2>
             <div class="fines-summary">
@@ -673,7 +675,7 @@ function calculateFine($days_overdue) {
     
     <script src="/smart-library/assets/js/scripts.js"></script>
     <script>
-    // Book borrowing function
+    
     function borrowBook(bookId) {
         if (!confirm('Borrow this book for 14 days?')) {
             return;
@@ -701,7 +703,7 @@ function calculateFine($days_overdue) {
         });
     }
     
-    // Book return function - updated with better error handling
+    
 function returnBook(recordId, bookTitle) {
     if (!confirm('Return "' + bookTitle + '"?')) {
         return;
@@ -710,7 +712,7 @@ function returnBook(recordId, bookTitle) {
     const formData = new FormData();
     formData.append('record_id', recordId);
     
-    // Show loading state
+    
     const returnBtn = event.target;
     const originalText = returnBtn.innerHTML;
     returnBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Returning...';
@@ -735,7 +737,7 @@ function returnBook(recordId, bookTitle) {
             } else {
                 alert('✅ Book returned successfully!\n\n📚 Book: ' + bookTitle);
             }
-            // Refresh the page after a short delay
+            
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -752,7 +754,7 @@ function returnBook(recordId, bookTitle) {
         returnBtn.disabled = false;
     });
 }
-// Reserve book function
+
 function reserveBook(bookId, bookTitle) {
     if (!confirm('Reserve "' + bookTitle + '"?\n\nYou will be notified when it becomes available.')) {
         return;
@@ -761,7 +763,7 @@ function reserveBook(bookId, bookTitle) {
     const formData = new FormData();
     formData.append('book_id', bookId);
     
-    // Show loading state
+   
     const reserveBtn = event.target;
     const originalText = reserveBtn.innerHTML;
     reserveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reserving...';
@@ -782,13 +784,13 @@ function reserveBook(bookId, bookTitle) {
             alert('✅ Book reserved successfully!\n\n📚 Book: ' + bookTitle + 
                   '\n📅 Reservation expires: ' + data.expiry_date + 
                   '\n📊 Your position in queue: ' + data.queue_position);
-            // Refresh the page after a short delay
+           
             setTimeout(() => {
                 location.reload();
             }, 1000);
         } else {
             if (data.available) {
-                // Book is available, ask if they want to borrow instead
+                
                 if (confirm('This book is currently available!\n\nWould you like to borrow it instead?')) {
                     borrowBook(bookId);
                 }
@@ -807,7 +809,7 @@ function reserveBook(bookId, bookTitle) {
     });
 }
 
-// Cancel reservation function
+
 function cancelReservation(reservationId, bookTitle) {
     if (!confirm('Cancel reservation for "' + bookTitle + '"?')) {
         return;
@@ -835,7 +837,7 @@ function cancelReservation(reservationId, bookTitle) {
     });
 }
 
-// Check availability function
+
 function checkAvailability(bookId, reservationId) {
     const formData = new FormData();
     formData.append('book_id', bookId);
@@ -860,7 +862,7 @@ function checkAvailability(bookId, reservationId) {
     });
 }
 
-// Enhanced payFine function with renewal option
+
 function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
     const paymentMethod = prompt('Enter payment method (Cash/Card/Online):', 'Cash');
     if (!paymentMethod) {
@@ -872,8 +874,7 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
     formData.append('amount', amount);
     formData.append('method', paymentMethod);
     
-    // For now, we'll use a simulated response since pay_fine.php might not exist
-    // In production, you should use the actual API endpoint
+    
     fetch('../../includes/pay_fine.php', {
         method: 'POST',
         body: formData
@@ -886,7 +887,7 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
                   '\n💳 Payment method: ' + paymentMethod);
             
             if (renewAfterPayment) {
-                // Try to renew the book after payment
+               
                 setTimeout(() => {
                     renewBook(recordId, bookTitle);
                 }, 500);
@@ -905,7 +906,7 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
     });
 }
     
-    // Pay all fines
+    
     function payAllFines() {
         const totalAmount = <?php echo $fines_data['total_unpaid'] ?? 0; ?>;
         if (totalAmount <= 0) {
@@ -943,33 +944,614 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
         });
     }
     
-    // View book details
-    function viewBookDetails(bookId) {
-        window.open(`book_details.php?id=${bookId}`, 'Book Details', 'width=600,height=400');
+    
+function viewBookDetails(bookId) {
+    console.log('Loading details for book ID:', bookId);
+    
+   
+    showLoading();
+    
+    
+    fetch(`../../includes/get_book_details.php?id=${bookId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                displayBookDetails(data);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error fetching book details:', error);
+            alert('Failed to load book details. Please try again.');
+        });
+}
+
+
+function displayBookDetails(data) {
+    const book = data.book;
+    
+    
+    function getValue(value, fallback = 'N/A') {
+        return value && value !== 'N/A' && value !== 'undefined' ? value : fallback;
     }
     
-    // View all fines
+    
+    function formatNumber(num) {
+        return num && !isNaN(num) ? num : 0;
+    }
+    
+    
+    let similarBooksHTML = '';
+    if (data.similar_books && data.similar_books.length > 0) {
+        similarBooksHTML = `
+            <div class="similar-books">
+                <h3>📚 Similar Books</h3>
+                <div class="similar-books-grid">
+                    ${data.similar_books.map(similar => `
+                        <div class="similar-book-card" onclick="viewBookDetails(${similar.id})">
+                            <img src="/smart-library/assets/images/books/${getValue(similar.cover_image, 'default-book.jpg')}" 
+                                 alt="${getValue(similar.title, 'Book')}"
+                                 onerror="this.src='/smart-library/assets/images/books/default-book.jpg'">
+                            <div class="similar-book-info">
+                                <h4>${getValue(similar.title, 'Untitled Book')}</h4>
+                                <p>${getValue(similar.author, 'Unknown Author')}</p>
+                                <span class="badge ${(similar.copies_available || 0) > 0 ? 'success' : 'warning'}">
+                                    ${getValue(similar.copies_available, 0)} available
+                                </span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+   
+    let reviewsHTML = '';
+    if (data.reviews && data.reviews.length > 0) {
+        reviewsHTML = `
+            <div class="reviews-list">
+                ${data.reviews.map(review => `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <img src="/smart-library/assets/images/profiles/${getValue(review.profile_picture, 'default-avatar.jpg')}" 
+                                     alt="${getValue(review.username, 'Reader')}" 
+                                     class="reviewer-avatar"
+                                     onerror="this.src='/smart-library/assets/images/profiles/default-avatar.jpg'">
+                                <div>
+                                    <strong>${getValue(review.username, 'Reader')}</strong>
+                                    <div class="review-rating">
+                                        ${'⭐'.repeat(review.rating || 0)}${'☆'.repeat(5 - (review.rating || 0))}
+                                        <span class="rating-value">${getValue(review.rating, 0)}.0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="review-date">
+                                ${review.created_at ? new Date(review.created_at).toLocaleDateString() : 'Recently'}
+                            </span>
+                        </div>
+                        <div class="review-content">
+                            <p>${getValue(review.comment, 'No comment provided.')}</p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        reviewsHTML = `
+            <div class="no-reviews">
+                <i class="fas fa-comment-slash"></i>
+                <p>No reviews yet. Be the first to review this book!</p>
+                ${data.user_info.has_borrowed ? 
+                    `<button class="btn btn-info" onclick="showReviewForm(${book.id})">
+                        <i class="fas fa-star"></i> Write First Review
+                    </button>` : 
+                    `<p class="text-muted">You need to borrow this book first to leave a review.</p>`
+                }
+            </div>
+        `;
+    }
+    
+   
+    const modalHTML = `
+        <div class="book-details-modal" id="bookDetailsModal">
+            <div class="modal-overlay" onclick="closeBookDetails()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📚 ${getValue(book.title, 'Untitled Book')}</h2>
+                    <button class="close-btn" onclick="closeBookDetails()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- Info Banner for Generated Data -->
+                    ${data.metadata && data.metadata.generated_fields && data.metadata.generated_fields.length > 0 ? `
+                    <div class="info-banner">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Some information was automatically generated to enhance your viewing experience.</span>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="book-main-info">
+                        <div class="book-cover">
+                            <img src="/smart-library/assets/images/books/${getValue(book.cover_image, 'default-book.jpg')}" 
+                                 alt="${getValue(book.title, 'Book')}" 
+                                 onerror="this.src='/smart-library/assets/images/books/default-book.jpg'">
+                            <div class="book-status">
+                                <span class="status-badge ${(book.copies_available || 0) > 0 ? 'status-available' : 'status-unavailable'}">
+                                    ${(book.copies_available || 0) > 0 ? 'Available' : 'Unavailable'}
+                                </span>
+                                <span class="copies-count">
+                                    ${getValue(book.copies_available, 0)} of ${getValue(book.total_copies, 1)} copies available
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="book-info">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <strong>👤 Author:</strong>
+                                    <span>${getValue(book.author, 'Unknown Author')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>🏷️ Category:</strong>
+                                    <span>${getValue(book.category, 'General')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>📖 ISBN:</strong>
+                                    <span>${getValue(book.isbn, 'Not Available')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>🏢 Publisher:</strong>
+                                    <span>${getValue(book.publisher, 'Unknown Publisher')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>📅 Published Year:</strong>
+                                    <span>${getValue(book.published_year, 'Unknown')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>📚 Edition:</strong>
+                                    <span>${getValue(book.edition, 'Unknown Edition')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>🗺️ Language:</strong>
+                                    <span>${getValue(book.language, 'English')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>📄 Pages:</strong>
+                                    <span>${getValue(book.total_pages, 'Unknown')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>📍 Location:</strong>
+                                    <span>${getValue(book.location, 'Library Collection')}</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>🔢 Call Number:</strong>
+                                    <span>${getValue(book.call_number, 'Not Assigned')}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="book-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${formatNumber(book.total_borrows)}</div>
+                                    <div class="stat-label">Total Borrows</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${formatNumber(book.active_reservations)}</div>
+                                    <div class="stat-label">Active Reservations</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">⭐ ${getValue(book.average_rating, 0)}/5</div>
+                                    <div class="stat-label">Rating (${formatNumber(book.review_count)} reviews)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Book Description -->
+                    <div class="book-description">
+                        <h3>📖 Description</h3>
+                        <p>${getValue(book.description, 'No description available for this book.')}</p>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="book-actions">
+                        ${(book.copies_available || 0) > 0 ? 
+                            `<button class="btn btn-primary" onclick="borrowBook(${book.id}, '${(book.title || '').replace(/'/g, "\\'")}')">
+                                <i class="fas fa-book"></i> Borrow Now
+                            </button>` : 
+                            `<button class="btn btn-reserve" onclick="reserveBook(${book.id}, '${(book.title || '').replace(/'/g, "\\'")}')">
+                                <i class="fas fa-bookmark"></i> Reserve
+                            </button>`
+                        }
+                        ${data.user_info && data.user_info.has_borrowed && !data.user_info.has_reviewed ? 
+                            `<button class="btn btn-info" onclick="showReviewForm(${book.id})">
+                                <i class="fas fa-star"></i> Write Review
+                            </button>` : ''
+                        }
+                        <button class="btn btn-view" onclick="addToReadingList(${book.id})">
+                            <i class="fas fa-bookmark"></i> Add to Reading List
+                        </button>
+                        <button class="btn btn-secondary" onclick="suggestBookDetails(${book.id})">
+                            <i class="fas fa-edit"></i> Suggest Details
+                        </button>
+                    </div>
+                    
+                    <!-- Similar Books -->
+                    ${similarBooksHTML}
+                    
+                    <!-- Reviews -->
+                    <div class="book-reviews">
+                        <div class="reviews-header">
+                            <h3>⭐ Reviews (${formatNumber(book.review_count)})</h3>
+                            ${data.user_info && data.user_info.has_borrowed && !data.user_info.has_reviewed ? 
+                                `<button class="btn-small" onclick="showReviewForm(${book.id})">
+                                    <i class="fas fa-plus"></i> Add Review
+                                </button>` : ''
+                            }
+                        </div>
+                        ${reviewsHTML}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+  
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+  
+    document.body.style.overflow = 'hidden';
+    
+   
+    document.addEventListener('keydown', handleModalKeyboard);
+}
+
+
+function suggestBookDetails(bookId) {
+    const formHTML = `
+        <div class="suggestion-modal" id="suggestionModal">
+            <div class="modal-overlay" onclick="closeSuggestionForm()"></div>
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>✏️ Suggest Book Details</h3>
+                    <button class="close-btn" onclick="closeSuggestionForm()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="suggestionForm" onsubmit="submitSuggestion(event, ${bookId})">
+                        <div class="form-group">
+                            <label for="suggestDescription">Description:</label>
+                            <textarea id="suggestDescription" name="description" 
+                                      rows="4" 
+                                      placeholder="Provide a better description for this book..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="suggestPublisher">Publisher:</label>
+                            <input type="text" id="suggestPublisher" name="publisher" 
+                                   placeholder="Enter publisher name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="suggestYear">Published Year:</label>
+                            <input type="number" id="suggestYear" name="year" 
+                                   min="1800" max="2024" 
+                                   placeholder="YYYY">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="suggestPages">Number of Pages:</label>
+                            <input type="number" id="suggestPages" name="pages" 
+                                   min="1" max="5000" 
+                                   placeholder="e.g., 250">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="suggestLanguage">Language:</label>
+                            <input type="text" id="suggestLanguage" name="language" 
+                                   placeholder="e.g., English, Spanish">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeSuggestionForm()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Suggestion
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', formHTML);
+}
+
+
+function closeSuggestionForm() {
+    const modal = document.getElementById('suggestionModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+
+function submitSuggestion(event, bookId) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    formData.append('book_id', bookId);
+    
+    fetch('../../includes/suggest_book_details.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Thank you for your suggestion! Library staff will review it.');
+            closeSuggestionForm();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to submit suggestion. Please try again.');
+    });
+}
+
+
+function addToReadingList(bookId) {
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    
+    fetch('../../includes/add_to_reading_list.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Added to your reading list!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add to reading list.');
+    });
+}
+
+
+function closeBookDetails() {
+    const modal = document.getElementById('bookDetailsModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleModalKeyboard);
+    }
+}
+
+
+function handleModalKeyboard(event) {
+    if (event.key === 'Escape') {
+        closeBookDetails();
+    }
+}
+
+
+function showLoading() {
+    const loadingHTML = `
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <i class="fas fa-book-open fa-spin"></i>
+                <p>Loading book details...</p>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', loadingHTML);
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+
+function showReviewForm(bookId) {
+    const reviewHTML = `
+        <div class="review-modal" id="reviewModal">
+            <div class="modal-overlay" onclick="closeReviewForm()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>✍️ Write a Review</h3>
+                    <button class="close-btn" onclick="closeReviewForm()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm" onsubmit="submitReview(event, ${bookId})">
+                        <div class="rating-section">
+                            <label>Rating:</label>
+                            <div class="star-rating">
+                                ${[1,2,3,4,5].map(i => `
+                                    <i class="far fa-star" data-rating="${i}" 
+                                       onclick="setRating(${i})"></i>
+                                `).join('')}
+                            </div>
+                            <input type="hidden" id="ratingValue" name="rating" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reviewComment">Your Review:</label>
+                            <textarea id="reviewComment" name="comment" 
+                                      rows="5" 
+                                      placeholder="Share your thoughts about this book..."
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeReviewForm()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', reviewHTML);
+    
+    
+    document.querySelectorAll('.star-rating .fa-star').forEach(star => {
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            highlightStars(rating);
+        });
+        
+        star.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(document.getElementById('ratingValue').value);
+            highlightStars(currentRating);
+        });
+    });
+}
+
+
+function setRating(rating) {
+    document.getElementById('ratingValue').value = rating;
+    highlightStars(rating);
+}
+
+function highlightStars(rating) {
+    document.querySelectorAll('.star-rating .fa-star').forEach((star, index) => {
+        const starRating = index + 1;
+        if (starRating <= rating) {
+            star.classList.remove('far');
+            star.classList.add('fas');
+            star.style.color = '#FFD700';
+        } else {
+            star.classList.remove('fas');
+            star.classList.add('far');
+            star.style.color = '#ccc';
+        }
+    });
+}
+
+
+function closeReviewForm() {
+    const modal = document.getElementById('reviewModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+
+function submitReview(event, bookId) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const rating = document.getElementById('ratingValue').value;
+    const comment = document.getElementById('reviewComment').value;
+    
+    if (rating == 0) {
+        alert('Please select a rating.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    formData.append('rating', rating);
+    formData.append('comment', comment);
+    
+    fetch('../../includes/submit_review.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Review submitted successfully!');
+            closeReviewForm();
+            closeBookDetails();
+            
+            viewBookDetails(bookId);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to submit review. Please try again.');
+    });
+}
+
+
+function viewAllReviews(bookId) {
+    window.open(`book_reviews.php?id=${bookId}`, 'Book Reviews', 'width=800,height=600');
+}
+
+
+function addToReadingList(bookId) {
+    const formData = new FormData();
+    formData.append('book_id', bookId);
+    
+    fetch('../../includes/add_to_reading_list.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Added to your reading list!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add to reading list.');
+    });
+}
+    
+    
     function viewAllFines() {
         window.open('fines_history.php', 'Fines History', 'width=800,height=600');
     }
     
-    // Request fine waiver
+   
     function requestFineWaiver() {
         const reason = prompt('Please explain why you are requesting a fine waiver:', 'Financial hardship / First-time offense');
         if (reason) {
             alert('Fine waiver request submitted. Library staff will review your request within 3 business days.');
-            // In real application, this would submit a request to staff
+           
         }
     }
     
-    // Apply forgiveness program
+   
     function applyForgiveness() {
         if (confirm('Apply for 50% fine forgiveness? You must return all overdue books within 7 days.')) {
             alert('Forgiveness program applied! Return your books within 7 days to qualify.');
         }
     }
     
-    // Generate receipt
+   
     function generateReceipt() {
         const receiptWindow = window.open('', 'Receipt', 'width=600,height=800');
         receiptWindow.document.write(`
@@ -1046,7 +1628,7 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
         receiptWindow.print();
     }
     
-    // Search books
+    
     function searchBooks(query) {
         const table = document.getElementById('booksTable');
         if (!table) return;
@@ -1060,7 +1642,7 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
         });
     }
     
-    // Clear search
+   
     function clearSearch() {
         const searchInput = document.querySelector('.search-input');
         if (searchInput) {
@@ -1069,7 +1651,7 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
         }
     }
     
-    // Update dashboard stats
+    
     function updateDashboardStats() {
         const overdueCount = <?php echo $overdue_books->num_rows; ?>;
         const overdueElement = document.querySelector('[data-stat="overdue-books"]');
@@ -1078,226 +1660,29 @@ function payFine(recordId, amount, bookTitle, renewAfterPayment = false) {
         }
     }
     
-    // Initialize on page load
+    
     document.addEventListener('DOMContentLoaded', function() {
         updateDashboardStats();
         
-        // Set up auto-refresh for overdue books (every 5 minutes)
+        
         setInterval(() => {
             const hasOverdue = <?php echo $overdue_books->num_rows > 0 ? 'true' : 'false'; ?>;
             if (hasOverdue) {
-                // Refresh only the overdue section
+                
                 fetch('../../includes/get_overdue_count.php')
                     .then(response => response.json())
                     .then(data => {
                         if (data.count > 0) {
-                            // Update count display
+                           
                             const countElements = document.querySelectorAll('.stat-number');
-                            if (countElements[1]) { // Second stat card
+                            if (countElements[1]) {
                                 countElements[1].textContent = data.count;
                             }
                         }
                     });
             }
-        }, 300000); // 5 minutes
+        }, 300000); 
     });
     </script>
-    
-    <style>
-    /* Additional styles for student dashboard */
-    .warning-message, .success-message, .info-message {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-    
-    .warning-message {
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
-        color: #856404;
-    }
-    
-    .success-message {
-        background: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    .info-message {
-        background: #d1ecf1;
-        border: 1px solid #bee5eb;
-        color: #0c5460;
-    }
-    
-    .warning-message i, .success-message i, .info-message i {
-        font-size: 1.5rem;
-        margin-top: 2px;
-    }
-    
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    
-    .badge.danger {
-        background: #f8d7da;
-        color: #721c24;
-    }
-    
-    .badge.warning {
-        background: #fff3cd;
-        color: #856404;
-    }
-    
-    .badge.success {
-        background: #d4edda;
-        color: #155724;
-    }
-    
-    .badge.info {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .text-danger {
-        color: #f44336;
-        font-weight: 600;
-    }
-    
-    .text-success {
-        color: #4CAF50;
-        font-weight: 600;
-    }
-    
-    .text-warning {
-        color: #FF9800;
-    }
-    
-    .text-muted {
-        color: #6c757d;
-    }
-    
-    .text-right {
-        text-align: right;
-    }
-    
-    .total-due {
-        font-size: 1.2rem;
-    }
-    
-    .payment-options {
-        margin-top: 30px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 5px;
-    }
-    
-    .options-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-    
-    .option-card {
-        background: white;
-        padding: 20px;
-        border-radius: 5px;
-        border: 1px solid #dee2e6;
-        display: flex;
-        gap: 15px;
-        align-items: flex-start;
-    }
-    
-    .option-icon {
-        width: 50px;
-        height: 50px;
-        background: #4361ee;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
-    
-    .option-content h4 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        color: #212529;
-    }
-    
-    .option-content p {
-        color: #6c757d;
-        margin-bottom: 15px;
-        font-size: 0.9rem;
-    }
-    
-    .fines-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 5px;
-    }
-    
-    .fine-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        background: white;
-        border-radius: 5px;
-        border: 1px solid #dee2e6;
-    }
-    
-    .fine-label {
-        font-weight: 600;
-        color: #495057;
-    }
-    
-    .fine-amount {
-        font-size: 1.2rem;
-        font-weight: 700;
-    }
-    
-    .fine-count {
-        font-weight: 600;
-        color: #495057;
-    }
-    
-    .fines-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-    }
-    
-    @media (max-width: 768px) {
-        .options-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .fines-summary {
-            grid-template-columns: 1fr;
-        }
-        
-        .fines-actions {
-            flex-direction: column;
-        }
-        
-        .fines-actions .btn {
-            width: 100%;
-        }
-    }
-    </style>
 </body>
 </html>

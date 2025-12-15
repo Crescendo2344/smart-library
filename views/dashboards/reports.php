@@ -2,13 +2,13 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-// Only staff can access this page
+
 if ($_SESSION['role'] !== 'staff') {
     header("Location: staff.php");
     exit();
 }
 
-// Get date range from GET or default to last 30 days
+
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-d', strtotime('-30 days'));
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
 $report_type = isset($_GET['report_type']) ? $_GET['report_type'] : 'overview';
@@ -42,11 +42,11 @@ function getReportData($conn, $report_type, $start_date, $end_date) {
     return $data;
 }
 
-// Overview Report
+
 function getOverviewReport($conn, $start_date, $end_date) {
     $data = [];
     
-    // Total statistics
+    
     $stats_query = "SELECT 
         (SELECT COUNT(*) FROM users) as total_users,
         (SELECT COUNT(*) FROM users WHERE approved = FALSE) as pending_users,
@@ -517,7 +517,7 @@ $conn->close();
     
     <script src="/smart-library/assets/js/reports.js"></script>
     <script>
-    // Initialize charts based on report type
+    
     document.addEventListener('DOMContentLoaded', function() {
         const reportType = '<?php echo $report_type; ?>';
         
@@ -549,10 +549,10 @@ $conn->close();
         const startDate = '<?php echo $start_date; ?>';
         const endDate = '<?php echo $end_date; ?>';
         
-        // In a real application, this would generate a PDF/Excel file
+        
         alert(`Exporting ${reportType} report from ${startDate} to ${endDate}\n\nThis would generate a downloadable file in production.`);
         
-        // For now, simulate download
+        
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(<?php echo json_encode($report_data); ?>, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);

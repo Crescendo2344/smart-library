@@ -2,11 +2,11 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-// Get user info
+
 $user_id = $_SESSION['user_id'];
 $conn = getDBConnection();
 
-// Get teacher's borrowed books
+
 $borrowed_query = "SELECT b.*, br.id as record_id, br.borrow_date, br.due_date, br.status 
                    FROM borrowing_records br 
                    JOIN books b ON br.book_id = b.id 
@@ -17,7 +17,7 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $borrowed_books = $stmt->get_result();
 
-// Get overdue books
+
 $overdue_query = "SELECT b.*, br.id as record_id, br.borrow_date, br.due_date, 
                          DATEDIFF(CURDATE(), br.due_date) as days_overdue
                   FROM borrowing_records br 
@@ -31,7 +31,7 @@ $stmt2->bind_param("i", $user_id);
 $stmt2->execute();
 $overdue_books = $stmt2->get_result();
 
-// Get total fines
+
 $fines_query = "SELECT 
                     SUM(CASE WHEN f.paid = FALSE THEN f.amount ELSE 0 END) as total_unpaid,
                     SUM(CASE WHEN f.paid = TRUE THEN f.amount ELSE 0 END) as total_paid
@@ -43,11 +43,11 @@ $stmt3->execute();
 $fines_result = $stmt3->get_result();
 $fines_data = $fines_result->fetch_assoc();
 
-// Get available books
-$available_books_query = "SELECT * FROM books WHERE copies_available > 0 ORDER BY title LIMIT 15";
+
+$available_books_query = "SELECT * FROM books WHERE copies_available >= 0 ORDER BY title LIMIT 15";
 $available_books = $conn->query($available_books_query);
 
-// Get teacher's reservations
+
 $reservations_query = "SELECT r.*, b.title, b.author, 
                       (SELECT COUNT(*) FROM reservations r2 
                        WHERE r2.book_id = r.book_id 
@@ -62,7 +62,7 @@ $reservations_stmt->bind_param("i", $user_id);
 $reservations_stmt->execute();
 $reservations = $reservations_stmt->get_result();
 
-// Get borrowing history
+
 $history_query = "SELECT b.title, b.author, br.borrow_date, br.return_date 
                   FROM borrowing_records br 
                   JOIN books b ON br.book_id = b.id 
@@ -73,7 +73,7 @@ $stmt4->bind_param("i", $user_id);
 $stmt4->execute();
 $borrowing_history = $stmt4->get_result();
 
-// Get teacher's course materials (if they have requested any)
+
 $course_materials_query = "SELECT cm.*, b.title, b.author 
                            FROM course_materials cm 
                            JOIN books b ON cm.book_id = b.id 
@@ -86,10 +86,10 @@ $course_materials = $course_stmt->get_result();
 
 $conn->close();
 
-// Teacher-specific settings
-$borrowing_limit = 30; // Days for teachers
-$max_books = 999; // Maximum books a teacher can borrow
-$max_reservations = 999; // Maximum reservations for teachers
+
+$borrowing_limit = 30; 
+$max_books = 999; 
+$max_reservations = 999; 
 ?>
 
 <!DOCTYPE html>
@@ -99,6 +99,7 @@ $max_reservations = 999; // Maximum reservations for teachers
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Library Management System</title>
     <link rel="stylesheet" href="/smart-library/assets/css/styles.css">
+    <link rel="stylesheet" href="/smart-library/assets/css/teacher.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -215,7 +216,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             </div>
         </div>
         
-        <!-- Overdue Books Section -->
+        
         <div class="table-container" id="overdue-books">
             <h2><i class="fas fa-exclamation-triangle"></i> Overdue Books</h2>
             <?php if ($overdue_books->num_rows > 0): ?>
@@ -277,7 +278,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             <?php endif; ?>
         </div>
         
-        <!-- Borrowed Books -->
+       
         <div class="table-container" id="borrowed-books">
             <h2><i class="fas fa-bookmark"></i> Your Borrowed Books</h2>
             <?php if ($borrowed_books->num_rows > 0): ?>
@@ -341,7 +342,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             <?php endif; ?>
         </div>
         
-        <!-- Available Books -->
+       
         <div class="table-container" id="available-books">
             <h2><i class="fas fa-book"></i> Available Books</h2>
             <?php if ($available_books->num_rows > 0): ?>
@@ -402,7 +403,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             <?php endif; ?>
         </div>
         
-        <!-- My Reservations -->
+        
         <div class="table-container" id="reservations">
             <h2><i class="fas fa-bookmark"></i> My Reservations</h2>
             <?php if ($reservations->num_rows > 0): ?>
@@ -476,7 +477,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             <?php endif; ?>
         </div>
         
-        <!-- Course Materials Section -->
+        
         <div class="table-container" id="course-materials">
             <h2><i class="fas fa-chalkboard-teacher"></i> Course Materials</h2>
             <div class="info-message">
@@ -534,7 +535,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             <?php endif; ?>
         </div>
         
-        <!-- Borrowing History -->
+       
         <div class="table-container" id="history">
             <h2><i class="fas fa-history"></i> Borrowing History</h2>
             <?php if ($borrowing_history->num_rows > 0): ?>
@@ -587,7 +588,7 @@ $max_reservations = 999; // Maximum reservations for teachers
             <?php endif; ?>
         </div>
         
-        <!-- Fines Summary Section -->
+        
         <div class="table-container" id="fines-section">
             <h2><i class="fas fa-money-bill-wave"></i> Fines Summary</h2>
             <div class="fines-summary">
@@ -628,7 +629,7 @@ $max_reservations = 999; // Maximum reservations for teachers
     
     <script src="/smart-library/assets/js/scripts.js"></script>
     <script>
-    // Book borrowing function for teachers
+    
     function borrowBook(bookId, bookTitle) {
         if (!confirm('Borrow "' + bookTitle + '" for <?php echo $borrowing_limit; ?> days?')) {
             return;
@@ -657,7 +658,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Book return function
+   
     function returnBook(recordId, bookTitle) {
         if (!confirm('Return "' + bookTitle + '"?')) {
             return;
@@ -689,7 +690,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Book renewal function for teachers
+    
     function renewBook(recordId, bookTitle) {
         if (!confirm('Renew "' + bookTitle + '" for another <?php echo $borrowing_limit; ?> days?')) {
             return;
@@ -718,7 +719,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Reserve book function
+    
     function reserveBook(bookId, bookTitle) {
         if (!confirm('Reserve "' + bookTitle + '"?\n\nYou will be notified when it becomes available.')) {
             return;
@@ -747,7 +748,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Cancel reservation
+  
     function cancelReservation(reservationId, bookTitle) {
         if (!confirm('Cancel reservation for "' + bookTitle + '"?')) {
             return;
@@ -775,7 +776,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Check availability
+  
     function checkAvailability(bookId) {
         const formData = new FormData();
         formData.append('book_id', bookId);
@@ -788,7 +789,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         .then(data => {
             if (data.available) {
                 if (confirm('Book is now available!\n\nWould you like to borrow it?')) {
-                    // Get book title from somewhere or prompt user
+                    
                     borrowBook(bookId, 'Available Book');
                 }
             } else {
@@ -801,7 +802,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Pay fine
+   
     function payFine(recordId, bookTitle) {
         const amount = prompt('Enter fine amount for "' + bookTitle + '":', '50.00');
         if (!amount || isNaN(amount) || amount <= 0) {
@@ -836,7 +837,7 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // Pay all fines
+   
     function payAllFines() {
         const totalAmount = <?php echo $fines_data['total_unpaid'] ?? 0; ?>;
         if (totalAmount <= 0) {
@@ -874,12 +875,12 @@ $max_reservations = 999; // Maximum reservations for teachers
         });
     }
     
-    // View all fines
+    
     function viewAllFines() {
         window.open('fines_history.php', 'Fines History', 'width=1200,height=800');
     }
     
-    // Request fine waiver
+    
     function requestFineWaiver() {
         const reason = prompt('Please explain why you are requesting a fine waiver:', 'Course material / Research purposes');
         if (reason) {
@@ -887,8 +888,8 @@ $max_reservations = 999; // Maximum reservations for teachers
         }
     }
     
-    // Request book for course use
-    // Replace your current requestForCourse function with this DEBUG version:
+    
+    
 function requestForCourse(bookId, bookTitle) {
     console.log('DEBUG - Function called with:', {bookId, bookTitle});
     
@@ -921,7 +922,7 @@ function requestForCourse(bookId, bookTitle) {
         semester: semester
     });
     
-    // Test the fetch URL
+    
     const url = '../../includes/request_course_material.php';
     console.log('DEBUG - Fetch URL:', url);
     
@@ -958,7 +959,7 @@ function requestForCourse(bookId, bookTitle) {
     });
 }
     
-    // Show course request form
+  
     function showCourseRequestForm() {
         const courseName = prompt('Enter course name:');
         if (!courseName) return;
@@ -993,12 +994,12 @@ function requestForCourse(bookId, bookTitle) {
         });
     }
     
-    // View course material details
+   
     function viewCourseMaterial(materialId) {
         window.open('course_material_details.php?id=' + materialId, 'Course Material Details', 'width=600,height=400');
     }
     
-    // Cancel course request
+  
     function cancelCourseRequest(requestId) {
         if (!confirm('Cancel this course material request?')) {
             return;
@@ -1026,7 +1027,7 @@ function requestForCourse(bookId, bookTitle) {
         });
     }
     
-    // Search books
+    
     function searchBooks(query) {
         const table = document.getElementById('booksTable');
         if (!table) return;
@@ -1040,7 +1041,7 @@ function requestForCourse(bookId, bookTitle) {
         });
     }
     
-    // Clear search
+    
     function clearSearch() {
         const searchInput = document.querySelector('.search-input');
         if (searchInput) {
@@ -1049,200 +1050,11 @@ function requestForCourse(bookId, bookTitle) {
         }
     }
     
-    // Initialize on page load
+    
     document.addEventListener('DOMContentLoaded', function() {
-        // Add any initialization code here
+        
     });
     </script>
     
-    <style>
-    /* Teacher-specific styles */
-    .teacher-badge {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    
-    .btn-reserve {
-        background-color: #ff9800;
-        color: white;
-    }
-    
-    .btn-reserve:hover {
-        background-color: #e68900;
-    }
-    
-    .btn-info {
-        background-color: #17a2b8;
-        color: white;
-    }
-    
-    .btn-info:hover {
-        background-color: #138496;
-    }
-    
-    .status-pending {
-        background-color: #ff9800;
-        color: white;
-    }
-    
-    .warning-message, .success-message, .info-message {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-    
-    .warning-message {
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
-        color: #856404;
-    }
-    
-    .success-message {
-        background: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    .info-message {
-        background: #d1ecf1;
-        border: 1px solid #bee5eb;
-        color: #0c5460;
-    }
-    
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    
-    .badge.danger {
-        background: #f8d7da;
-        color: #721c24;
-    }
-    
-    .badge.warning {
-        background: #fff3cd;
-        color: #856404;
-    }
-    
-    .badge.success {
-        background: #d4edda;
-        color: #155724;
-    }
-    
-    .badge.info {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .text-danger {
-        color: #f44336;
-        font-weight: 600;
-    }
-    
-    .text-success {
-        color: #4CAF50;
-        font-weight: 600;
-    }
-    
-    .text-warning {
-        color: #FF9800;
-    }
-    
-    .fines-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 5px;
-    }
-    
-    .fine-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        background: white;
-        border-radius: 5px;
-        border: 1px solid #dee2e6;
-    }
-    
-    .fine-label {
-        font-weight: 600;
-        color: #495057;
-    }
-    
-    .fine-amount {
-        font-size: 1.2rem;
-        font-weight: 700;
-    }
-    
-    .fines-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-    }
-    
-    .nav-links {
-        display: flex;
-        gap: 10px;
-        margin-left: 20px;
-    }
-    
-    .nav-btn {
-        padding: 8px 15px;
-        background-color: #4361ee;
-        color: white;
-        border-radius: 4px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        transition: background-color 0.3s;
-    }
-    
-    .nav-btn:hover {
-        background-color: #3a0ca3;
-        color: white;
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .fines-actions {
-            flex-direction: column;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .nav-links {
-            flex-direction: column;
-            margin-left: 0;
-            margin-bottom: 10px;
-        }
-    }
-    </style>
 </body>
 </html>

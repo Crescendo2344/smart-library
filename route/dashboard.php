@@ -2,16 +2,16 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 
-// Check if user is logged in and approved
+
 if (!isLoggedIn()) {
     header("Location: index.php");
     exit();
 }
 
-// Get user role
+
 $role = $_SESSION['role'];
 
-// Redirect to appropriate dashboard
+
 switch ($role) {
     case 'student':
         include '/student.php';

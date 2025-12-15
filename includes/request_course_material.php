@@ -1,5 +1,5 @@
 <?php
-// request_course_material.php
+
 require_once 'config.php';
 require_once 'auth.php';
 
@@ -27,7 +27,7 @@ if (!$book_id || !$course_name) {
 
 $conn = getDBConnection();
 
-// Check if user already has a pending request for this book
+
 $check_query = "SELECT id FROM course_materials 
                 WHERE teacher_id = ? AND book_id = ? AND status = 'pending'";
 $check_stmt = $conn->prepare($check_query);
@@ -40,7 +40,7 @@ if ($check_result->num_rows > 0) {
     exit;
 }
 
-// Insert the course material request
+
 $insert_query = "INSERT INTO course_materials (teacher_id, book_id, course_name, semester, request_date, status) 
                  VALUES (?, ?, ?, ?, NOW(), 'pending')";
 $insert_stmt = $conn->prepare($insert_query);

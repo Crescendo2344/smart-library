@@ -2,16 +2,16 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-// Only staff can access this page
+
 if ($_SESSION['role'] !== 'staff') {
     header("Location: dashboard.php");
     exit();
 }
 
-// Get pending users for approval
+
 $pending_users = getPendingUsers();
 
-// Get all users
+
 $conn = getDBConnection();
 $all_users_query = "SELECT 
     u.id, 
@@ -30,7 +30,7 @@ ORDER BY u.registration_date DESC
 LIMIT 20";
 $all_users = $conn->query($all_users_query);
 
-// Get statistics
+
 $stats_query = "SELECT 
     (SELECT COUNT(*) FROM users WHERE approved = FALSE) as pending_users,
     (SELECT COUNT(*) FROM users) as total_users,
@@ -251,7 +251,7 @@ $conn->close();
     
     <script src="/smart-library/assets/js/scripts.js"></script>
     <script>
-// Handle user approval/rejection
+
 function handleUserAction(userId, action) {
     if (!confirm(`Are you sure you want to ${action} this user?`)) {
         return;
@@ -261,7 +261,7 @@ function handleUserAction(userId, action) {
     formData.append('user_id', userId);
     formData.append('action', action);
     
-    // Update this path to point to the correct location
+   
     fetch('../../includes/approve_user.php', {
         method: 'POST',
         body: formData
@@ -275,11 +275,11 @@ function handleUserAction(userId, action) {
     .then(data => {
         if (data.success) {
             alert(`User ${action}ed successfully!`);
-            // Remove the row from the table
+            
             const row = document.getElementById(`user-row-${userId}`);
             if (row) {
                 row.remove();
-                // Update the pending users count
+                
                 updatePendingCount();
             }
         } else {
@@ -292,7 +292,7 @@ function handleUserAction(userId, action) {
     });
 }
 
-// Function to update pending users count
+
 function updatePendingCount() {
     const pendingCountElement = document.querySelector('.stat-number');
     if (pendingCountElement) {

@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation -->
+    
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
@@ -30,7 +30,7 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    
     <section class="hero">
         <div class="container">
             <div class="hero-content">
@@ -88,7 +88,7 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+    
     <section id="features" class="features">
         <div class="container">
             <div class="section-header">
@@ -142,7 +142,7 @@
         </div>
     </section>
 
-    <!-- Roles Section -->
+    
     <section id="roles" class="roles">
         <div class="container">
             <div class="section-header">
@@ -211,7 +211,7 @@
         </div>
     </section>
 
-    <!-- How It Works -->
+    
     <section class="how-it-works">
         <div class="container">
             <div class="section-header">
@@ -251,7 +251,7 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
+    
     <section class="cta">
         <div class="container">
             <div class="cta-content">
@@ -266,7 +266,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
+    
     <footer>
         <div class="container">
             <div class="footer-grid">

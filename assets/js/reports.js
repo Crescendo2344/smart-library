@@ -1,15 +1,15 @@
-// Reports Dashboard JavaScript
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
+  
     initTooltips();
     
-    // Initialize datepickers
+  
     initDatePickers();
     
-    // Initialize search functionality
+    
     initSearch();
     
-    // Load real-time data
+    
     loadRealTimeData();
 });
 
@@ -53,7 +53,7 @@ function initTooltips() {
 function initDatePickers() {
     const dateInputs = document.querySelectorAll('input[type="date"]');
     dateInputs.forEach(input => {
-        // Set max date to today
+        
         const today = new Date().toISOString().split('T')[0];
         input.max = today;
     });
@@ -78,7 +78,7 @@ function initSearch() {
 }
 
 function loadRealTimeData() {
-    // Load real-time updates every 60 seconds
+    
     setInterval(() => {
         fetch('../../includes/get_realtime_stats.php')
             .then(response => response.json())
@@ -92,7 +92,7 @@ function loadRealTimeData() {
 }
 
 function updateRealTimeStats(stats) {
-    // Update quick stats
+    
     const statElements = {
         'total_users': document.querySelector('.stat-card:nth-child(1) h3'),
         'total_books': document.querySelector('.stat-card:nth-child(2) h3'),
@@ -102,7 +102,7 @@ function updateRealTimeStats(stats) {
     
     for (const [key, element] of Object.entries(statElements)) {
         if (element && stats[key] !== undefined) {
-            // Animate number change
+          
             animateNumberChange(element, stats[key]);
         }
     }
@@ -112,7 +112,7 @@ function animateNumberChange(element, newValue) {
     const currentValue = parseInt(element.textContent) || 0;
     if (currentValue === newValue) return;
     
-    const duration = 500; // ms
+    const duration = 500; 
     const startTime = Date.now();
     const difference = newValue - currentValue;
     
@@ -120,7 +120,7 @@ function animateNumberChange(element, newValue) {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Easing function
+        
         const easeOut = 1 - Math.pow(1 - progress, 3);
         const current = Math.round(currentValue + (difference * easeOut));
         
@@ -134,7 +134,7 @@ function animateNumberChange(element, newValue) {
     requestAnimationFrame(updateNumber);
 }
 
-// Chart export functions
+
 function exportChart(chartId, fileName = 'chart') {
     const chart = Chart.getChart(chartId);
     if (chart) {
@@ -155,7 +155,7 @@ function toggleChartData(chartId) {
     }
 }
 
-// Print specific section
+
 function printSection(sectionId) {
     const section = document.getElementById(sectionId);
     if (!section) return;
@@ -188,7 +188,7 @@ function printSection(sectionId) {
     printWindow.close();
 }
 
-// Data export functions
+
 function exportTableToCSV(tableId, filename = 'data') {
     const table = document.getElementById(tableId);
     if (!table) return;
@@ -202,7 +202,7 @@ function exportTableToCSV(tableId, filename = 'data') {
         
         cols.forEach(col => {
             let text = col.textContent.trim();
-            // Handle commas in data
+          
             text = text.replace(/"/g, '""');
             if (text.includes(',') || text.includes('"') || text.includes('\n')) {
                 text = `"${text}"`;
@@ -226,21 +226,21 @@ function exportTableToCSV(tableId, filename = 'data') {
     URL.revokeObjectURL(url);
 }
 
-// Dashboard refresh
+
 function refreshDashboard() {
     const event = new Event('refreshDashboard');
     document.dispatchEvent(event);
 }
 
-// Event listener for dashboard refresh
+
 document.addEventListener('refreshDashboard', function() {
-    // Reload the page or fetch updated data
+   
     location.reload();
 });
 
-// Auto-refresh every 5 minutes
+
 setTimeout(() => {
     if (confirm('Dashboard data is 5 minutes old. Refresh now?')) {
         refreshDashboard();
     }
-}, 300000); // 5 minutes
+}, 300000);

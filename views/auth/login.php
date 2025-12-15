@@ -2,7 +2,7 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-// Redirect if already logged in
+
 if (isLoggedIn()) {
     redirectByRole();
 }
@@ -10,7 +10,7 @@ if (isLoggedIn()) {
 $error = '';
 $message = '';
 
-// Handle login form submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';

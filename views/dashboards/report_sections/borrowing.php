@@ -1,4 +1,4 @@
-<!-- Borrowing Patterns Report -->
+
 <div class="kpi-grid">
     <div class="kpi-card primary">
         <div class="kpi-label">Average Borrow Duration</div>
@@ -36,7 +36,7 @@
         <div class="kpi-label">Peak Borrowing Hour</div>
         <div class="kpi-value">
             <?php 
-            // Simulated data - in real app, you'd query this
+           
             $peak_hours = ['10:00 AM', '2:00 PM', '4:00 PM'];
             echo $peak_hours[array_rand($peak_hours)];
             ?>
@@ -284,7 +284,7 @@
 
 <script>
 function initBorrowingCharts() {
-    // Borrowing Trends Chart
+    
     const trendCtx = document.getElementById('borrowingTrendChart').getContext('2d');
     const trendData = <?php echo json_encode($report_data['borrowing_trends'] ?? []); ?>;
     
@@ -363,7 +363,7 @@ function initBorrowingCharts() {
 
 function sendReminder(userId) {
     if (confirm('Send overdue reminder to this user?')) {
-        // Simulate API call
+        
         setTimeout(() => {
             alert('Reminder sent successfully!');
         }, 500);
@@ -378,13 +378,13 @@ function sendBulkReminders() {
     }
     
     if (confirm(`Send reminders to all ${overdueCount} users with overdue books?`)) {
-        // Show loading
+       
         const button = event.target;
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
         button.disabled = true;
         
-        // Simulate API call
+        
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -395,10 +395,10 @@ function sendBulkReminders() {
 
 function markReturned(recordId) {
     if (confirm('Mark this book as returned?')) {
-        // Simulate API call
+        
         setTimeout(() => {
             alert('Book marked as returned!');
-            // Refresh the table row
+            
             const row = event.target.closest('tr');
             if (row) {
                 row.style.opacity = '0.5';
@@ -411,7 +411,7 @@ function markReturned(recordId) {
 function applyFine(userId, recordId) {
     const fineAmount = prompt('Enter fine amount:', '5.00');
     if (fineAmount && !isNaN(parseFloat(fineAmount))) {
-        // Simulate API call
+        
         setTimeout(() => {
             alert(`Fine of $${fineAmount} applied successfully!`);
         }, 500);

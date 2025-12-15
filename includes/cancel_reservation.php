@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = getDBConnection();
     
     try {
-        // Check if reservation exists and belongs to user
+        
         $reservation_query = $conn->prepare("SELECT r.*, b.title FROM reservations r JOIN books b ON r.book_id = b.id WHERE r.id = ? AND r.user_id = ?");
         $reservation_query->bind_param("ii", $reservation_id, $user_id);
         $reservation_query->execute();
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $reservation = $reservation_result->fetch_assoc();
         
-        // Update reservation status to cancelled
+        
         $update_stmt = $conn->prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ?");
         $update_stmt->bind_param("i", $reservation_id);
         

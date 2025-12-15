@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $conn = getDBConnection();
     
-    // Check book availability
+  
     $book_query = $conn->prepare("SELECT copies_available FROM books WHERE id = ?");
     $book_query->bind_param("i", $book_id);
     $book_query->execute();

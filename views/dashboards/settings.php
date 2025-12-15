@@ -4,16 +4,16 @@ require_once '../../includes/auth.php';
 
 
 
-// Only staff can access this page
+
 if ($_SESSION['role'] !== 'staff') {
     header("Location: staff.php");
     exit();
 }
 
-// Database connection
+
 $conn = getDBConnection();
 
-// Handle form submissions
+
 $message = '';
 $error = '';
 
@@ -51,16 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get current settings
+
 $settings = getSettings($conn);
 $conn->close();
 
-// Functions for settings management
+
 function getSettings($conn) {
     $settings = [];
     
-    // Get settings from database if you have a settings table
-    // For now, we'll use default values
+    
     $settings['general'] = [
         'site_name' => 'Library Management System',
         'site_email' => 'admin@library.com',
@@ -122,10 +121,9 @@ function getSettings($conn) {
 }
 
 function saveGeneralSettings($conn, $data) {
-    // In a real application, you would save to database
-    // For now, we'll just return a success message
     
-    // Validate data
+    
+   
     if (empty($data['site_name'])) {
         return 'Site name is required';
     }
@@ -134,18 +132,17 @@ function saveGeneralSettings($conn, $data) {
         return 'Invalid email address';
     }
     
-    // Log the change
+    
     $staff_id = $_SESSION['user_id'];
     $change_description = "General settings updated by staff ID: $staff_id";
     
-    // You would save to database here
-    // Example: $conn->query("UPDATE settings SET value = '{$data['site_name']}' WHERE key = 'site_name'");
+    
     
     return 'General settings saved successfully!';
 }
 
 function saveBorrowingSettings($conn, $data) {
-    // Validate borrowing limits
+   
     $limits = ['student_limit', 'teacher_limit', 'librarian_limit'];
     foreach($limits as $limit) {
         if (!is_numeric($data[$limit]) || $data[$limit] < 1) {
@@ -153,7 +150,7 @@ function saveBorrowingSettings($conn, $data) {
         }
     }
     
-    // Validate periods
+    
     $periods = ['student_period', 'teacher_period', 'librarian_period'];
     foreach($periods as $period) {
         if (!is_numeric($data[$period]) || $data[$period] < 1) {
@@ -161,7 +158,7 @@ function saveBorrowingSettings($conn, $data) {
         }
     }
     
-    // Log the change
+    
     $staff_id = $_SESSION['user_id'];
     $change_description = "Borrowing settings updated by staff ID: $staff_id";
     
@@ -169,7 +166,7 @@ function saveBorrowingSettings($conn, $data) {
 }
 
 function saveFineSettings($conn, $data) {
-    // Validate fine amounts
+    
     if (!is_numeric($data['overdue_rate']) || $data['overdue_rate'] < 0) {
         return 'Overdue rate must be a positive number';
     }
@@ -178,7 +175,7 @@ function saveFineSettings($conn, $data) {
         return 'Grace period must be a positive number';
     }
     
-    // Log the change
+    
     $staff_id = $_SESSION['user_id'];
     $change_description = "Fine settings updated by staff ID: $staff_id";
     
@@ -186,8 +183,7 @@ function saveFineSettings($conn, $data) {
 }
 
 function saveNotificationSettings($conn, $data) {
-    // Validate notification settings
-    // Log the change
+   
     $staff_id = $_SESSION['user_id'];
     $change_description = "Notification settings updated by staff ID: $staff_id";
     
@@ -195,7 +191,7 @@ function saveNotificationSettings($conn, $data) {
 }
 
 function saveSecuritySettings($conn, $data) {
-    // Validate security settings
+   
     if (!is_numeric($data['min_password_length']) || $data['min_password_length'] < 6) {
         return 'Minimum password length must be at least 6 characters';
     }
@@ -204,7 +200,7 @@ function saveSecuritySettings($conn, $data) {
         return 'Maximum login attempts must be at least 1';
     }
     
-    // Log the change
+    
     $staff_id = $_SESSION['user_id'];
     $change_description = "Security settings updated by staff ID: $staff_id";
     
@@ -212,7 +208,7 @@ function saveSecuritySettings($conn, $data) {
 }
 
 function resetSettings($conn) {
-    // Reset to default settings
+   
     $staff_id = $_SESSION['user_id'];
     $change_description = "All settings reset to defaults by staff ID: $staff_id";
     
@@ -220,13 +216,12 @@ function resetSettings($conn) {
 }
 
 function backupDatabase($conn) {
-    // Create database backup
+    
     $backup_file = '../../backups/backup_' . date('Y-m-d_H-i-s') . '.sql';
     
-    // In a real application, you would use mysqldump
-    // For now, we'll just create a placeholder
     
-    // Log the backup
+    
+   
     $staff_id = $_SESSION['user_id'];
     $change_description = "Database backup created by staff ID: $staff_id";
     
@@ -260,7 +255,7 @@ function backupDatabase($conn) {
     </header>
     
     <main class="container">
-        <!-- Settings Header -->
+        
         <div class="settings-header">
             <h1><i class="fas fa-sliders-h"></i> System Configuration</h1>
             <p>Manage library system settings and preferences</p>
@@ -278,7 +273,7 @@ function backupDatabase($conn) {
             </div>
         <?php endif; ?>
         
-        <!-- Settings Navigation -->
+     
         <div class="settings-nav">
             <button class="nav-btn active" onclick="showTab('general')">
                 <i class="fas fa-globe"></i> General
@@ -300,10 +295,10 @@ function backupDatabase($conn) {
             </button>
         </div>
         
-        <!-- Settings Content -->
+        
         <div class="settings-content">
             
-            <!-- General Settings Tab -->
+           
             <div id="general" class="settings-tab active">
                 <div class="tab-header">
                     <h2><i class="fas fa-globe"></i> General Settings</h2>
@@ -432,7 +427,6 @@ function backupDatabase($conn) {
                 </form>
             </div>
             
-            <!-- Borrowing Settings Tab -->
             <div id="borrowing" class="settings-tab">
                 <div class="tab-header">
                     <h2><i class="fas fa-book"></i> Borrowing Settings</h2>
@@ -558,7 +552,7 @@ function backupDatabase($conn) {
                 </form>
             </div>
             
-            <!-- Fines Settings Tab -->
+            
             <div id="fines" class="settings-tab">
                 <div class="tab-header">
                     <h2><i class="fas fa-money-bill"></i> Fine Settings</h2>
@@ -684,7 +678,7 @@ function backupDatabase($conn) {
                 </form>
             </div>
             
-            <!-- Notifications Settings Tab -->
+            
             <div id="notifications" class="settings-tab">
                 <div class="tab-header">
                     <h2><i class="fas fa-bell"></i> Notification Settings</h2>
@@ -834,7 +828,7 @@ function backupDatabase($conn) {
                 </form>
             </div>
             
-            <!-- Security Settings Tab -->
+            
             <div id="security" class="settings-tab">
                 <div class="tab-header">
                     <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
@@ -1003,7 +997,7 @@ function backupDatabase($conn) {
                 </form>
             </div>
             
-            <!-- Backup Settings Tab -->
+           
             <div id="backup" class="settings-tab">
                 <div class="tab-header">
                     <h2><i class="fas fa-database"></i> Backup & Maintenance</h2>

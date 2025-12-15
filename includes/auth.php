@@ -1,14 +1,14 @@
 <?php
 require_once 'config.php';
 
-// Function to register a new user
+
 function registerUser($username, $email, $password, $full_name, $role) {
     $conn = getDBConnection();
     
-    // Hash the password
+   
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     
-    // Prepare SQL statement
+   
     $stmt = $conn->prepare("INSERT INTO users (username, email, password, full_name, role, approved) VALUES (?, ?, ?, ?, ?, FALSE)");
     $stmt->bind_param("sssss", $username, $email, $hashed_password, $full_name, $role);
     
@@ -24,11 +24,11 @@ function registerUser($username, $email, $password, $full_name, $role) {
     }
 }
 
-// Function to login user
+
 function loginUser($username, $password) {
     $conn = getDBConnection();
     
-    // Prepare SQL statement
+   
     $stmt = $conn->prepare("SELECT id, username, password, role, approved FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -36,12 +36,11 @@ function loginUser($username, $password) {
     
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
-        
-        // Verify password
+  
         if (password_verify($password, $user['password'])) {
-            // Check if user is approved
+            
             if ($user['approved'] == 1) {
-                // Set session variables
+               
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
@@ -63,17 +62,17 @@ function loginUser($username, $password) {
     return false;
 }
 
-// Function to check if user is logged in
+
 function isLoggedIn() {
     return isset($_SESSION['user_id']) && isset($_SESSION['approved']) && $_SESSION['approved'] == true;
 }
 
-// Function to redirect based on role
+
 function redirectByRole() {
     if (isLoggedIn()) {
         $role = $_SESSION['role'];
         
-        // Directly redirect to the specific dashboard file
+      
         $dashboardMap = [
             'student' => 'student.php',
             'teacher' => 'teacher.php', 
@@ -82,18 +81,18 @@ function redirectByRole() {
         ];
         
         if (isset($dashboardMap[$role])) {
-            // Redirect to the dashboard file
+            
             header("Location: ../dashboards/" . $dashboardMap[$role]);
             exit();
         } else {
-            // Fallback to router
+           
             header("Location: ../dashboards/dashboard.php");
             exit();
         }
     }
 }
 
-// Function to get pending users for staff approval
+
 function getPendingUsers() {
     $conn = getDBConnection();
     $sql = "SELECT id, username, email, full_name, role, registration_date FROM users WHERE approved = FALSE ORDER BY registration_date ASC";
@@ -110,7 +109,7 @@ function getPendingUsers() {
     return $users;
 }
 
-// Function to approve a user
+
 function approveUser($user_id, $approved_by) {
     $conn = getDBConnection();
     $stmt = $conn->prepare("UPDATE users SET approved = TRUE, approved_by = ?, approval_date = NOW() WHERE id = ?");
@@ -123,7 +122,7 @@ function approveUser($user_id, $approved_by) {
     return $result;
 }
 
-// Function to reject/delete a user
+
 function rejectUser($user_id) {
     $conn = getDBConnection();
     $stmt = $conn->prepare("DELETE FROM users WHERE id = ? AND approved = FALSE");

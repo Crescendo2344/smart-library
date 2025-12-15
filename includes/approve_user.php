@@ -1,12 +1,10 @@
 <?php
-// includes/approve_user.php
+
 require_once 'config.php';
 require_once 'auth.php';
 
-// Start session
-session_start();
 
-// Check if user is staff and logged in
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit();
@@ -25,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = getDBConnection();
     
     if ($action === 'approve') {
-        // Approve the user
+       
         $stmt = $conn->prepare("UPDATE users SET approved = TRUE, approved_by = ?, approval_date = NOW() WHERE id = ?");
         $stmt->bind_param("ii", $staff_id, $user_id);
         
@@ -37,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
         
     } elseif ($action === 'reject') {
-        // Delete the pending user
+        
         $stmt = $conn->prepare("DELETE FROM users WHERE id = ? AND approved = FALSE");
         $stmt->bind_param("i", $user_id);
         

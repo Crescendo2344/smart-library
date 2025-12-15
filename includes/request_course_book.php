@@ -1,5 +1,5 @@
 <?php
-// For requesting new books for courses
+
 require_once 'config.php';
 require_once 'auth.php';
 
@@ -16,6 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $book_info = $_POST['book_info'] ?? '';
     $reason = $_POST['reason'] ?? '';
     
-    // Insert into course_book_requests table
+   
 }
 ?>

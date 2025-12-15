@@ -1,23 +1,22 @@
-// Settings Management JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize settings page
+   
     initSettingsPage();
     
-    // Set up form validation
+    
     setupFormValidation();
     
-    // Load saved settings if any
+    
     loadSavedSettings();
 });
 
 function initSettingsPage() {
-    // Highlight current tab from URL hash
+   
     const hash = window.location.hash.substring(1);
     if (hash) {
         showTab(hash);
     }
     
-    // Set up tab switching
+    
     const tabButtons = document.querySelectorAll('.nav-btn');
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -26,35 +25,35 @@ function initSettingsPage() {
         });
     });
     
-    // Initialize tooltips
+   
     initTooltips();
     
-    // Set up backup schedule
+    
     setupBackupSchedule();
 }
 
 function showTab(tabId) {
-    // Hide all tabs
+  
     const tabs = document.querySelectorAll('.settings-tab');
     tabs.forEach(tab => {
         tab.classList.remove('active');
     });
     
-    // Remove active class from all buttons
+    
     const buttons = document.querySelectorAll('.nav-btn');
     buttons.forEach(button => {
         button.classList.remove('active');
     });
     
-    // Show selected tab
+    
     const selectedTab = document.getElementById(tabId);
     if (selectedTab) {
         selectedTab.classList.add('active');
         
-        // Update URL hash without scrolling
+        
         window.history.replaceState(null, null, `#${tabId}`);
         
-        // Find and activate corresponding button
+        
         const activeButton = Array.from(buttons).find(button => 
             button.getAttribute('onclick')?.includes(`showTab('${tabId}')`)
         );
@@ -63,7 +62,7 @@ function showTab(tabId) {
         }
     }
     
-    // Scroll to top of tab content
+    
     const settingsContent = document.querySelector('.settings-content');
     if (settingsContent) {
         settingsContent.scrollTop = 0;
@@ -106,11 +105,11 @@ function showTooltip(event) {
     const rect = element.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
     
-    // Position tooltip above element
+   
     tooltip.style.left = `${rect.left + rect.width/2 - tooltipRect.width/2}px`;
     tooltip.style.top = `${rect.top - tooltipRect.height - 10}px`;
     
-    // Store reference to remove later
+    
     element._tooltip = tooltip;
 }
 
@@ -131,14 +130,14 @@ function setupFormValidation() {
                 return false;
             }
             
-            // Show loading state
+            
             const submitButton = this.querySelector('button[type="submit"]');
             if (submitButton) {
                 const originalText = submitButton.innerHTML;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                 submitButton.disabled = true;
                 
-                // Re-enable after 3 seconds in case of error
+                
                 setTimeout(() => {
                     submitButton.innerHTML = originalText;
                     submitButton.disabled = false;
@@ -149,7 +148,7 @@ function setupFormValidation() {
         });
     });
     
-    // Real-time validation for number inputs
+   
     const numberInputs = document.querySelectorAll('input[type="number"]');
     numberInputs.forEach(input => {
         input.addEventListener('change', function() {
@@ -172,15 +171,14 @@ function validateForm(form) {
     let isValid = true;
     const requiredFields = form.querySelectorAll('[required]');
     
-    // Clear previous error messages
+   
     const errorMessages = form.querySelectorAll('.error-message');
     errorMessages.forEach(msg => msg.remove());
     
-    // Remove error classes
+   
     const errorInputs = form.querySelectorAll('.error');
     errorInputs.forEach(input => input.classList.remove('error'));
-    
-    // Validate required fields
+   
     requiredFields.forEach(field => {
         if (!field.value.trim()) {
             isValid = false;
@@ -199,7 +197,7 @@ function validateForm(form) {
         }
     });
     
-    // Validate email fields
+   
     const emailFields = form.querySelectorAll('input[type="email"]');
     emailFields.forEach(field => {
         if (field.value && !isValidEmail(field.value)) {
@@ -219,7 +217,7 @@ function validateForm(form) {
         }
     });
     
-    // Validate URLs
+  
     const urlFields = form.querySelectorAll('input[type="url"]');
     urlFields.forEach(field => {
         if (field.value && !isValidUrl(field.value)) {
@@ -257,13 +255,13 @@ function isValidUrl(url) {
 }
 
 function loadSavedSettings() {
-    // Try to load settings from localStorage
+    
     const savedSettings = localStorage.getItem('library_settings');
     if (savedSettings) {
         try {
             const settings = JSON.parse(savedSettings);
             
-            // Apply saved settings to form fields
+          
             Object.keys(settings).forEach(category => {
                 Object.keys(settings[category]).forEach(key => {
                     const element = document.querySelector(`[name="${key}"]`);
@@ -300,7 +298,7 @@ function saveSettingsToLocal() {
                 }
             });
             
-            // Handle checkboxes
+           
             const checkboxes = form.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 settings[category][checkbox.name] = checkbox.checked;
@@ -320,13 +318,13 @@ function testEmail() {
     }
     
     if (confirm(`Send test email to ${email}?`)) {
-        // Show loading
+       
         const button = event.target;
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
         button.disabled = true;
         
-        // Simulate email sending
+        
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -337,13 +335,13 @@ function testEmail() {
 
 function forceLogoutAll() {
     if (confirm('WARNING: This will log out ALL users immediately. Are you sure?')) {
-        // Show loading
+        
         const button = event.target;
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
         button.disabled = true;
         
-        // Simulate API call
+        
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -360,13 +358,13 @@ function restoreBackup() {
     }
     
     if (confirm(`WARNING: This will restore database from ${backupFile}. All current data may be lost. Continue?`)) {
-        // Show loading
+        
         const button = event.target;
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring...';
         button.disabled = true;
         
-        // Simulate restore process
+        
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -377,7 +375,7 @@ function restoreBackup() {
 
 function cleanupLogs() {
     if (confirm('Delete logs older than 90 days?')) {
-        // Simulate cleanup
+       
         setTimeout(() => {
             alert('Log cleanup completed!\n\nDeleted 1,245 old log entries.');
         }, 1500);
@@ -386,7 +384,7 @@ function cleanupLogs() {
 
 function cleanupTempFiles() {
     if (confirm('Remove all temporary files?')) {
-        // Simulate cleanup
+       
         setTimeout(() => {
             alert('Temporary files cleaned up!\n\nFreed 45.2 MB of disk space.');
         }, 1500);
@@ -395,7 +393,7 @@ function cleanupTempFiles() {
 
 function optimizeDatabase() {
     if (confirm('Optimize database tables?')) {
-        // Simulate optimization
+        
         setTimeout(() => {
             alert('Database optimization completed!\n\nImproved performance by 15%.');
         }, 2000);
@@ -421,7 +419,7 @@ function showClearDataWarning() {
     if (confirmation === 'DELETE ALL') {
         if (confirm('FINAL WARNING: This will delete EVERYTHING. Are you absolutely sure?')) {
             alert('Data deletion initiated...\n\nSystem will restart in 5 seconds.');
-            // In real application, this would make an API call
+            
         }
     } else if (confirmation !== null) {
         alert('Incorrect confirmation phrase. Action cancelled.');
@@ -429,15 +427,15 @@ function showClearDataWarning() {
 }
 
 function setupBackupSchedule() {
-    // Check if backup is due
+   
     const lastBackup = localStorage.getItem('last_backup');
     const today = new Date().toDateString();
     
     if (lastBackup !== today) {
-        // Ask about daily backup
+       
         setTimeout(() => {
             if (confirm('Create daily backup? Recommended for data safety.')) {
-                // Auto-create backup
+               
                 const event = new Event('autoBackup');
                 document.dispatchEvent(event);
             }
@@ -445,13 +443,13 @@ function setupBackupSchedule() {
     }
 }
 
-// Auto-backup event listener
+
 document.addEventListener('autoBackup', function() {
     console.log('Auto-backup triggered');
-    // In real application, this would trigger backup
+    
 });
 
-// Auto-save changes to localStorage
+
 const formInputs = document.querySelectorAll('.settings-form input, .settings-form select, .settings-form textarea');
 formInputs.forEach(input => {
     input.addEventListener('change', function() {
@@ -459,7 +457,7 @@ formInputs.forEach(input => {
     });
 });
 
-// Export settings function
+
 function exportSettings() {
     const settings = localStorage.getItem('library_settings');
     if (!settings) {
@@ -476,7 +474,7 @@ function exportSettings() {
     downloadAnchor.remove();
 }
 
-// Import settings function
+
 function importSettings(event) {
     const file = event.target.files[0];
     if (!file) return;

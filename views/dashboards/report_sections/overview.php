@@ -1,4 +1,4 @@
-<!-- Overview Dashboard -->
+
 <div class="kpi-grid">
     <div class="kpi-card primary">
         <div class="kpi-label">System Health Score</div>
@@ -100,7 +100,7 @@
 
 <script>
 function initOverviewCharts() {
-    // Daily Activity Chart
+    
     const activityCtx = document.getElementById('activityChart').getContext('2d');
     const activityData = <?php echo json_encode($report_data['daily_activity'] ?? []); ?>;
     

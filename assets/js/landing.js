@@ -1,6 +1,5 @@
-// Landing Page JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
+    
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Close mobile menu when clicking a link
+   
     const navLinks = document.querySelectorAll('.nav-menu a');
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -22,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Smooth scrolling for anchor links
+    
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Animate elements on scroll
+    
     const animateOnScroll = function() {
         const elements = document.querySelectorAll('.feature-card, .role-card, .step');
         
@@ -55,18 +54,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     
-    // Set initial state for animation
+    
     document.querySelectorAll('.feature-card, .role-card, .step').forEach(element => {
         element.style.opacity = '0';
         element.style.transform = 'translateY(30px)';
         element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
     });
     
-    // Run animation on load and scroll
+   
     window.addEventListener('load', animateOnScroll);
     window.addEventListener('scroll', animateOnScroll);
     
-    // Counter animation for stats
+   
     const stats = document.querySelectorAll('.stat h3');
     const animatedStats = new Set();
     
@@ -96,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     window.addEventListener('scroll', animateCounter);
     
-    // Role-based registration links
+    
     const roleButtons = document.querySelectorAll('.role-btn');
     roleButtons.forEach(button => {
         if (button.href.includes('register.php')) {
@@ -114,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Parallax effect for hero image
+   
     window.addEventListener('scroll', function() {
         const scrolled = window.pageYOffset;
         const heroImage = document.querySelector('.hero-image img');
@@ -124,20 +123,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Newsletter form (placeholder)
+   
     const newsletterForm = document.querySelector('.newsletter-form');
     if (newsletterForm) {
         newsletterForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const email = this.querySelector('input[type="email"]').value;
             
-            // In a real application, you would send this to your server
+          
             alert(`Thank you for subscribing with ${email}! You'll hear from us soon.`);
             this.reset();
         });
     }
     
-    // Demo video modal
+   
     const demoButtons = document.querySelectorAll('[href="#features"]');
     demoButtons.forEach(button => {
         button.addEventListener('click', function(e) {

@@ -1,4 +1,4 @@
-<!-- Book Inventory Report -->
+
 <div class="chart-container">
     <div class="chart-header">
         <h3><i class="fas fa-book"></i> Books by Category</h3>
@@ -146,7 +146,7 @@
 
 <script>
 function initBookCharts() {
-    // Category Distribution Bar Chart
+    
     const categoryCtx = document.getElementById('categoryChart').getContext('2d');
     const categoryData = <?php echo json_encode($report_data['category_stats'] ?? []); ?>;
     

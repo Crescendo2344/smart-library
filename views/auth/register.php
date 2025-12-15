@@ -2,7 +2,7 @@
 require_once '../../includes/config.php';
 require_once '../../includes/auth.php';
 
-// Redirect if already logged in
+
 if (isLoggedIn()) {
     redirectByRole();
 }
@@ -10,7 +10,7 @@ if (isLoggedIn()) {
 $error = '';
 $success = '';
 
-// Handle registration form submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $email = $_POST['email'] ?? '';
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = $_POST['full_name'] ?? '';
     $role = $_POST['role'] ?? 'student';
     
-    // Validation
+    
     if (empty($username) || empty($email) || empty($password) || empty($confirm_password) || empty($full_name)) {
         $error = 'Please fill in all fields';
     } elseif ($password !== $confirm_password) {
@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 6) {
         $error = 'Password must be at least 6 characters long';
     } else {
-        // Register the user
+        
         $result = registerUser($username, $email, $password, $full_name, $role);
         
         if ($result === true) {
             $success = 'Registration successful! Your account is pending approval by staff.';
-            // Clear form
+            
             $_POST = array();
         } else {
             $error = 'Registration failed: ' . $result;

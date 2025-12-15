@@ -4,7 +4,7 @@ require_once '../../includes/auth.php';
 
 
 
-// Check if user is logged in
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
@@ -13,12 +13,12 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $conn = getDBConnection();
 
-// Get filter parameters
+
 $filter_status = $_GET['status'] ?? 'all';
 $filter_year = $_GET['year'] ?? date('Y');
 $filter_month = $_GET['month'] ?? 'all';
 
-// Build WHERE clause for filters
+
 $where_clause = "WHERE f.user_id = ?";
 $params = [$user_id];
 $param_types = "i";
@@ -30,7 +30,7 @@ if ($filter_status !== 'all') {
 }
 
 if ($filter_year !== 'all') {
-    // Use payment_date or use the borrowing date from borrowing_records as fallback
+    
     $where_clause .= " AND YEAR(COALESCE(f.payment_date, br.due_date)) = ?";
     $params[] = $filter_year;
     $param_types .= "s";
@@ -42,7 +42,7 @@ if ($filter_month !== 'all') {
     $param_types .= "s";
 }
 
-// Get all fines for the user
+
 $fines_query = "SELECT 
     f.id,
     f.amount,
@@ -73,7 +73,7 @@ if ($params) {
 $stmt->execute();
 $fines = $stmt->get_result();
 
-// Get fine statistics
+
 $stats_query = "SELECT 
     COUNT(*) as total_fines,
     SUM(CASE WHEN paid = 1 THEN amount ELSE 0 END) as total_paid,
@@ -92,7 +92,7 @@ $stats_stmt->execute();
 $stats_result = $stats_stmt->get_result();
 $stats = $stats_result->fetch_assoc();
 
-// Get monthly fine trends - use payment_date or due_date
+
 $monthly_query = "SELECT 
     YEAR(COALESCE(f.payment_date, br.due_date)) as year,
     MONTH(COALESCE(f.payment_date, br.due_date)) as month,
@@ -112,7 +112,7 @@ $monthly_stmt->bind_param("i", $user_id);
 $monthly_stmt->execute();
 $monthly_trends = $monthly_stmt->get_result();
 
-// Get available years for filter
+
 $years_query = "SELECT DISTINCT YEAR(COALESCE(f.payment_date, br.due_date)) as year 
                 FROM fines f
                 LEFT JOIN borrowing_records br ON f.borrowing_id = br.id
@@ -153,13 +153,13 @@ $conn->close();
     </header>
     
     <main class="container">
-        <!-- Page Header -->
+      
         <div class="page-header">
             <h1><i class="fas fa-history"></i> Fines History & Payments</h1>
             <p>View your fine records, payment history, and manage outstanding balances</p>
         </div>
         
-        <!-- Summary Cards -->
+      
         <div class="summary-cards">
             <div class="summary-card primary">
                 <div class="summary-icon">
@@ -233,7 +233,7 @@ $conn->close();
             </div>
         </div>
         
-        <!-- Filters Section -->
+       
         <div class="filters-section">
             <h3><i class="fas fa-filter"></i> Filter Fines</h3>
             <form method="GET" action="" class="filter-form">
@@ -314,7 +314,7 @@ $conn->close();
             </div>
         </div>
         
-        <!-- Charts Section -->
+        
         <div class="charts-section">
             <div class="chart-card">
                 <div class="chart-header">
@@ -337,7 +337,7 @@ $conn->close();
             </div>
         </div>
         
-        <!-- Fines Table -->
+     
         <div class="table-container">
             <div class="table-header">
                 <h2><i class="fas fa-list"></i> Fine Records</h2>
@@ -473,7 +473,7 @@ $conn->close();
                 </table>
             </div>
             
-            <!-- Pagination -->
+            
             <div class="pagination">
                 <button class="btn-small" onclick="prevPage()">
                     <i class="fas fa-chevron-left"></i> Previous
@@ -496,7 +496,7 @@ $conn->close();
             <?php endif; ?>
         </div>
         
-        <!-- Unpaid Fines Section -->
+        
         <?php if ($stats['total_unpaid'] > 0): ?>
         <div class="unpaid-section" id="unpaid-fines">
             <div class="section-header">
@@ -567,7 +567,7 @@ $conn->close();
         </div>
         <?php endif; ?>
         
-        <!-- Fine Policies -->
+        
         <div class="policies-section">
             <h2><i class="fas fa-book"></i> Fine Policies & Information</h2>
             
@@ -629,19 +629,19 @@ $conn->close();
     
     <script src="/smart-library/assets/js/fines_history.js"></script>
     <script>
-        // Enhanced generatePaymentReceipt function
+        
     function generatePaymentReceipt(fineData = null) {
-        // If no specific fine data provided, show summary of all unpaid fines
+       
         const totalUnpaid = <?php echo $stats['total_unpaid']; ?>;
         const unpaidCount = <?php echo $stats['unpaid_count']; ?>;
         const username = "<?php echo htmlspecialchars($_SESSION['username']); ?>";
         const userId = "<?php echo $_SESSION['user_id']; ?>";
         const currentDate = new Date();
         
-        // Get unpaid fines data
+        
         const unpaidFines = [];
         <?php 
-        // Reset result pointer to get unpaid fines
+        
         $fines->data_seek(0);
         while($fine = $fines->fetch_assoc()): 
             if (!$fine['paid']):
@@ -659,8 +659,7 @@ $conn->close();
         endwhile; 
         ?>
         
-        // If fineData is provided, generate receipt for specific fine
-        // Otherwise, generate for all unpaid fines
+        
         const receiptData = fineData ? {
             type: 'SINGLE',
             fines: [fineData],
@@ -931,7 +930,7 @@ $conn->close();
         };
     }
     
-    // Enhanced payFine function that generates receipt
+    
     function payFineWithReceipt(fineId, amount, bookTitle, reason) {
         if (!confirm('Pay fine of $' + amount.toFixed(2) + ' for "' + bookTitle + '"?')) {
             return;
@@ -975,9 +974,9 @@ $conn->close();
         });
     }
     
-    // Initialize charts and other functions
+    
     document.addEventListener('DOMContentLoaded', function() {
-        // Fine Distribution Chart
+        
         const distributionCtx = document.getElementById('fineDistributionChart').getContext('2d');
         const paidAmount = <?php echo $stats['total_paid']; ?>;
         const unpaidAmount = <?php echo $stats['total_unpaid']; ?>;
@@ -1006,7 +1005,7 @@ $conn->close();
             }
         });
         
-        // Monthly Trends Chart
+        
         const trendsCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
         const monthlyData = <?php 
             $monthly_data = [];
@@ -1077,7 +1076,7 @@ $conn->close();
             }
         });
         
-        // Initialize search
+        
         const searchInput = document.getElementById('searchFines');
         if (searchInput) {
             searchInput.addEventListener('keyup', function() {
@@ -1085,7 +1084,7 @@ $conn->close();
             });
         }
         
-        // Initialize pagination
+        
         initPagination();
     });
     
@@ -1227,3 +1226,8 @@ $conn->close();
             alert('Payment Plan Setup:\n\nTotal Amount: $' + amount.toFixed(2) + '\nMonths: ' + months + '\nMonthly Payment: $' + monthlyPayment + '\n\nFirst payment due in 7 days.');
         }
     }
+
+    </script>
+</body>
+</html>']);
+}   

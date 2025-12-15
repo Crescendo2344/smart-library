@@ -1,4 +1,4 @@
-<!-- Fines & Revenue Report -->
+
 <div class="kpi-grid">
     <div class="kpi-card primary">
         <div class="kpi-label">Total Revenue Collected</div>
@@ -186,7 +186,7 @@
                         <td><?php echo $user['fine_count']; ?> fines</td>
                         <td>
                             <?php 
-                            // Simulated last fine date
+                            
                             $last_date = date('M d, Y', strtotime('-'.rand(1, 30).' days'));
                             echo $last_date;
                             ?>
@@ -312,7 +312,7 @@
 
 <script>
 function initFinesCharts() {
-    // Fines Trends Chart
+    
     const finesCtx = document.getElementById('finesTrendChart').getContext('2d');
     const finesData = <?php echo json_encode($report_data['fines_trend'] ?? []); ?>;
     
@@ -378,10 +378,10 @@ function initFinesCharts() {
         }
     });
     
-    // Revenue Forecast Chart
+   
     const forecastCtx = document.getElementById('revenueForecastChart').getContext('2d');
     
-    // Generate forecast data
+   
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
     const forecastMonths = months.slice(currentMonth - 2, currentMonth + 4);
@@ -461,13 +461,13 @@ function sendBulkPaymentReminders() {
     }
     
     if (confirm(`Send payment reminders to ${unpaidCount} users with unpaid fines?`)) {
-        // Show loading
+       
         const button = event.target;
         const originalText = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
         button.disabled = true;
         
-        // Simulate API call
+        
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -477,7 +477,7 @@ function sendBulkPaymentReminders() {
 }
 
 function viewUserFines(userId) {
-    // In a real app, this would open a modal or navigate to user fines page
+    
     alert(`Viewing fines for user ID: ${userId}\nThis would show detailed fine history.`);
 }
 
@@ -486,13 +486,13 @@ function recordPayment(userId) {
     if (amount && !isNaN(parseFloat(amount))) {
         const method = prompt('Payment method (Cash/Card/Online):', 'Cash');
         if (method) {
-            // Simulate API call
+           
             setTimeout(() => {
                 alert(`Payment of $${amount} recorded via ${method}!\nUser ID: ${userId}`);
-                // Refresh the row
+               
                 const row = event.target.closest('tr');
                 if (row) {
-                    // Update paid/unpaid amounts visually
+                    
                     const unpaidCell = row.querySelector('.text-danger');
                     if (unpaidCell) {
                         const currentUnpaid = parseFloat(unpaidCell.textContent.replace('$', ''));
@@ -500,7 +500,7 @@ function recordPayment(userId) {
                         const newUnpaid = Math.max(0, currentUnpaid - paidAmount);
                         unpaidCell.textContent = '$' + newUnpaid.toFixed(2);
                         
-                        // Update paid amount
+                       
                         const paidCell = row.querySelector('.text-success');
                         if (paidCell) {
                             const currentPaid = parseFloat(paidCell.textContent.replace('$', ''));
@@ -517,10 +517,10 @@ function waiveFine(userId) {
     if (confirm('Are you sure you want to waive fines for this user?')) {
         const reason = prompt('Reason for waiver:', 'First-time offense / Good standing');
         if (reason) {
-            // Simulate API call
+            
             setTimeout(() => {
                 alert(`Fines waived for user ID: ${userId}\nReason: ${reason}`);
-                // Remove or update the row
+               
                 const row = event.target.closest('tr');
                 if (row) {
                     row.style.opacity = '0.5';

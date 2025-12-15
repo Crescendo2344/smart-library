@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $conn = getDBConnection();
     
-    // Check if book exists and is available
+   
     $book_check = $conn->prepare("SELECT copies_available FROM books WHERE id = ?");
     $book_check->bind_param("i", $book_id);
     $book_check->execute();
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
-    // Check user's borrowing limit based on role
+    
     $user_role = $_SESSION['role'];
     $borrowing_limits = [
         'student' => 3,
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
-    // Set borrowing period based on role
+    
     $borrowing_periods = [
         'student' => 14,
         'teacher' => 30,
@@ -67,16 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $period_days = $borrowing_periods[$user_role] ?? 14;
     $due_date = date('Y-m-d', strtotime("+{$period_days} days"));
     
-    // Start transaction
+   
     $conn->begin_transaction();
     
     try {
-        // Create borrowing record
+     
         $borrow_stmt = $conn->prepare("INSERT INTO borrowing_records (user_id, book_id, due_date, status) VALUES (?, ?, ?, 'borrowed')");
         $borrow_stmt->bind_param("iis", $user_id, $book_id, $due_date);
         $borrow_stmt->execute();
         
-        // Update book availability
+       
         $update_stmt = $conn->prepare("UPDATE books SET copies_available = copies_available - 1 WHERE id = ?");
         $update_stmt->bind_param("i", $book_id);
         $update_stmt->execute();

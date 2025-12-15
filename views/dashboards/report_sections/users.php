@@ -1,4 +1,4 @@
-<!-- User Analytics -->
+
 <div class="chart-container">
     <div class="chart-header">
         <h3><i class="fas fa-users"></i> Users by Role</h3>
@@ -96,7 +96,7 @@
 
 <script>
 function initUserCharts() {
-    // Role Distribution Pie Chart
+    
     const roleCtx = document.getElementById('roleChart').getContext('2d');
     const roleData = <?php echo json_encode($report_data['role_stats'] ?? []); ?>;
     
