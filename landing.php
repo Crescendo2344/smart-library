@@ -304,8 +304,8 @@
                 <div class="footer-col">
                     <h4>Contact Info</h4>
                     <ul class="contact-info">
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Library Street, City, Country</li>
-                        <li><i class="fas fa-phone"></i> +1 (234) 567-8900</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 234 M.J. Cuenco, Cebu City, Philippines</li>
+                        <li><i class="fas fa-phone"></i> +63 (930) 567-8900</li>
                         <li><i class="fas fa-envelope"></i> support@librarypro.com</li>
                     </ul>
                 </div>
