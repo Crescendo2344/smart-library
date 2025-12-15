@@ -1,0 +1,19 @@
+library-management-system/
+├── index.php                 # Login page
+├── register.php              # Registration page
+├── logout.php                # Logout script
+├── dashboard.php             # Role-based dashboard router
+├── database/
+│   └── library_db.sql        # Database schema
+├── css/
+│   └── styles.css           # Main stylesheet
+├── js/
+│   └── scripts.js           # Client-side functionality
+├── includes/
+│   ├── config.php           # Database configuration
+│   └── auth.php             # Authentication functions
+└── dashboards/
+    ├── student.php          # Student dashboard
+    ├── teacher.php          # Teacher dashboard
+    ├── librarian.php         # Librarian dashboard
+    └── staff.php            # Staff dashboard (with approval system)
